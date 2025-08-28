@@ -1,37 +1,89 @@
-// This plugin will open a window to prompt the user to enter a number, and
-// it will then create that many rectangles on the screen.
+interface ResizeData {
+  targetWidth: number;
+  itemCount: number;
+  padding: number;
+}
 
-// This file holds the main code for plugins. Code in this file has access to
-// the *figma document* via the figma global object.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser environment (See https://www.figma.com/plugin-docs/how-plugins-run).
+interface PluginMessage {
+  type: 'resize-elements';
+  data: ResizeData;
+}
 
-// This shows the HTML page in "ui.html".
-figma.showUI(__html__);
+interface UIMessage {
+  type: 'error' | 'success';
+  message: string;
+}
 
-// Calls to "parent.postMessage" from within the HTML page will trigger this
-// callback. The callback will be passed the "pluginMessage" property of the
-// posted message.
-figma.ui.onmessage =  (msg: {type: string, count: number}) => {
-  // One way of distinguishing between different types of messages sent from
-  // your HTML page is to use an object with a "type" property like this.
-  if (msg.type === 'create-shapes') {
-    // This plugin creates rectangles on the screen.
-    const numberOfRectangles = msg.count;
+figma.showUI(__html__, {
+  width: 320,
+  height: 400,
+  title: 'SpaceControl 🚀'
+});
 
-    const nodes: SceneNode[] = [];
-    for (let i = 0; i < numberOfRectangles; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [{ type: 'SOLID', color: { r: 1, g: 0.5, b: 0 } }];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
-    }
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
+figma.ui.onmessage = (msg: PluginMessage) => {
+  if (msg.type === 'resize-elements') {
+    resizeElements(msg.data);
   }
-
-  // Make sure to close the plugin when you're done. Otherwise the plugin will
-  // keep running, which shows the cancel button at the bottom of the screen.
-  figma.closePlugin();
 };
+
+function resizeElements(data: ResizeData): void {
+  const { targetWidth, itemCount, padding } = data;
+  
+  try {
+    const selection: readonly SceneNode[] = figma.currentPage.selection;
+  
+    if (selection.length === 0) {
+      sendUIMessage('error', 'Please select some elements to resize');
+      return;
+    }
+    
+    if (selection.length !== itemCount) {
+      sendUIMessage('error', `You selected ${selection.length} items but specified ${itemCount} items`);
+      return;
+    }
+    
+    const totalPadding: number = padding * (itemCount - 1);
+    const availableWidth: number = targetWidth - totalPadding;
+    const itemWidth: number = availableWidth / itemCount;
+    
+    if (itemWidth <= 0) {
+      sendUIMessage('error', 'Calculated width is too small. Reduce padding or increase target width.');
+      return;
+    }
+    
+    const sortedElements: SceneNode[] = [...selection].sort((a, b) => a.x - b.x);
+    
+    let currentX: number = sortedElements[0].x;
+    
+    sortedElements.forEach((element: SceneNode, index: number) => {
+      if (isResizable(element)) {
+        element.resize(itemWidth, element.height);
+        
+        element.x = currentX;
+        
+        currentX += itemWidth + padding;
+      } else {
+        sendUIMessage('error', `Cannot resize element "${element.name}" - it may be a group or component`);
+        return;
+      }
+    });
+    
+    sendUIMessage('success', `Successfully resized ${itemCount} elements`);
+    figma.notify(`Resized ${itemCount} elements to ${itemWidth.toFixed(1)}px each`);
+    
+  } catch (error) {
+    console.error('Error resizing elements:', error);
+    sendUIMessage('error', 'An error occurred while resizing elements');
+  }
+}
+
+function isResizable(node: SceneNode): node is SceneNode & MinimalBlendMixin & LayoutMixin & GeometryMixin {
+  return 'resize' in node && typeof node.resize === 'function';
+}
+
+function sendUIMessage(type: UIMessage['type'], message: string): void {
+  figma.ui.postMessage({ type, message });
+}
+
+figma.on('close', () => {
+});

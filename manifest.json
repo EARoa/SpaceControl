@@ -1,18 +1,16 @@
 {
-  "name": "SpaceControl",
+  "name": "SpaceControl 🚀",
   "id": "1542652503715866105",
   "api": "1.0.0",
   "main": "code.js",
+  "ui": "ui.html",
+  "icon": "icon.svg",
   "capabilities": [],
   "enableProposedApi": false,
-  "documentAccess": "dynamic-page",
   "editorType": [
     "figma"
   ],
-  "ui": "ui.html",
-  "networkAccess": {
-    "allowedDomains": [
-      "none"
-    ]
-  }
+"networkAccess": {
+  "allowedDomains": ["none"]
+}
 }

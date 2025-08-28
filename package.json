@@ -1,5 +1,5 @@
 {
-  "name": "SpaceControl",
+  "name": "SpaceControl 🚀",
   "version": "1.0.0",
   "description": "Your Figma Plugin",
   "main": "code.js",
@@ -9,8 +9,16 @@
     "lint:fix": "eslint --ext .ts,.tsx --ignore-pattern node_modules --fix .",
     "watch": "npm run build -- --watch"
   },
-  "author": "",
-  "license": "",
+   "keywords": [
+    "figma",
+    "plugin",
+    "resize",
+    "layout",
+    "spacing",
+    "design"
+  ],
+  "author": "Efrain Ayllon",
+  "license": "MIT",
   "devDependencies": {
     "@figma/eslint-plugin-figma-plugins": "*",
     "@figma/plugin-typings": "*",

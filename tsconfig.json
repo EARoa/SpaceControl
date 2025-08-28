@@ -6,6 +6,15 @@
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/@figma"
-    ]
-  }
+    ],
+    "outDir": "./",
+    "sourceMap": true,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["./*.ts"],
+  "exclude": ["node_modules"]
 }

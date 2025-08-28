@@ -20,6 +20,7 @@ Say you have 3 input fields to fit in an 800px container with 20px spacing betwe
 - Result: Each field becomes 760px ÷ 3 = 253.33px wide
 
 SpaceControl🚀 handles this automagically
+
 ![SpaceControl🚀 Screenshot](https://github.com/EARoa/SpaceControl/blob/main/assets/spacecontrol.png?raw=true)
 
 ## Features
